@@ -2,6 +2,7 @@ from typing import Iterable, Literal
 from functools import cached_property
 import numpy as np
 import networkx as nx
+import matplotlib.pyplot as plt
 
 
 class DegreeDistribution(object):
@@ -50,10 +51,34 @@ class DegreeDistribution(object):
             
             self.degree_freq_dict[self[neighbor]] += 1
 
+    def show_hist(self, n_bins: int = 10, ax = None):
+        if ax is None:
+            fig, ax = plt.subplots(1,1)
+
+        ax.hist(list(self.node_degrees.values()), bins=n_bins, edgecolor='k')
+
+        ax.set_xlabel('Degree')
+        ax.set_ylabel('Count')
+
+    def show_edf(self, ax = None):
+        if ax is None:
+            fig, ax = plt.subplots(1,1)
+
+        ax.ecdf(list(self.node_degrees.values()))
+
+        ax.set_xlabel('Degree')
+        ax.set_ylabel('Probability of Occurrence')
+
     @property
     def unique_degrees(self) -> list[int]:
         return [degree for degree, count in self.degree_freq_dict.items() if count > 0]
     
+    @property
+    def pdf(self) -> list[float]:
+        values, counts = np.unique(list(self.node_degrees.values()), return_counts=True)
+        counts = counts / np.sum(counts)
+        return values, counts
+
     @property
     def cdf(self) -> list[float]:
         counts = [count for count in self.degree_freq_dict.values() if count > 0]
