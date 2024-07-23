@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Literal
 from functools import cached_property
 import numpy as np
 import networkx as nx
@@ -71,6 +71,8 @@ class SubgraphHandler:
 
         self.degree_distribution = DegreeDistribution(self.full_graph.subgraph(self.subgraph_nodes).degree(), num_nodes=len(initial_node_set))
 
+        self.ks_dist = None
+
 
     def add(self, node: int) -> None:
         # Add node, and increase degree of neighbors
@@ -82,6 +84,8 @@ class SubgraphHandler:
         self.subgraph_nodes.append(node)
         self.not_subgraph_nodes.remove(node)
 
+        self.ks_dist = None
+
     def remove(self, node: int) -> None:
         # Remove node and reduce degree of neighbors
         remove_node_neighbors = list(self.full_graph.neighbors(node))
@@ -92,7 +96,13 @@ class SubgraphHandler:
         self.subgraph_nodes.remove(node)
         self.not_subgraph_nodes.append(node)
 
+        self.ks_dist = None
+
+    # Partly from scipy.stats.ks_2samp
     def ks_distance(self):
+        if self.ks_dist is not None:
+            return self.ks_dist
+        
         subgraph_degrees = np.sort(list(self.degree_distribution.node_degrees.values()))
         full_degrees = np.sort(self.full_graph_degree_sequence)
 
@@ -103,7 +113,21 @@ class SubgraphHandler:
 
         dist = np.max(np.abs(cdf1 - cdf2))
 
+        self.ks_dist = dist
         return dist
+    
+    def jaccard_similarity(self, other_subgraph, mode: Literal['edges', 'nodes'] = 'nodes') -> float:
+        if mode == 'nodes':
+            own_set = set(self.subgraph_nodes)
+            other_set = set(other_subgraph.subgraph_nodes)
+        else:
+            own_graph = nx.subgraph(self.full_graph, self.subgraph_nodes)
+            own_set = own_graph.edges()
+
+            other_graph = nx.subgraph(self.full_graph, other_subgraph.subgraph_nodes)
+            other_set = other_graph.edges()
+
+        return own_set.intersection(other_set) / own_set.union(other_set)
 
     @property
     def nodes(self):
