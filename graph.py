@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 
 
 class DegreeDistribution(object):
-    def __init__(self, degree_dict, num_nodes: int) -> None:
+    def __init__(self, degree_dict) -> None:
         self.node_degrees = dict(degree_dict)
 
         unique_degrees, degree_counts = np.unique(list(self.node_degrees.values()), return_counts=True)
         unique_degrees, degree_counts = list(unique_degrees), list(degree_counts)
 
-        self.degree_freq_dict = {d:0 for d in range(num_nodes)}
+        self.degree_freq_dict = {d:0 for d in range(len(degree_dict))}
         self.degree_freq_dict.update({d:c for d,c in zip(unique_degrees, degree_counts)})
 
     def __getitem__(self, node: int) -> int:
@@ -94,7 +94,7 @@ class SubgraphHandler:
         # Determine which nodes are not in the subgraph
         self.not_subgraph_nodes = [node for node in full_graph.nodes() if node not in initial_node_set]
 
-        self.degree_distribution = DegreeDistribution(self.full_graph.subgraph(self.subgraph_nodes).degree(), num_nodes=len(initial_node_set))
+        self.degree_distribution = DegreeDistribution(self.full_graph.subgraph(self.subgraph_nodes).degree())
 
         self.ks_dist = None
 
