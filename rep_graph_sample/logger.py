@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from graph import SubgraphHandler
+from .graph import SubgraphHandler
+from datetime import datetime
+from pathlib import Path
 
 
 class RunHistory:
@@ -15,6 +17,8 @@ class RunHistory:
 
         self.iteration = 0
         self.save_interval = save_interval
+
+        self.save_id = datetime.now().strftime("%d_%m__%H_%M_%S")
 
 
     def log(self, ratio: float, accepted: bool) -> None:
@@ -43,6 +47,14 @@ class RunHistory:
         acceptance_ratio = accepted / (len(ratios) * num_repeats)
         return acceptance_ratio
     
+
+    def save_run(self) -> None:
+        Path(f"./runs/{self.save_id}").mkdir(parents=True, exist_ok=True)
+        np.save(f'./runs/{self.save_id}/distances', self.distances)
+        np.save(f'./runs/{self.save_id}/ratios', self.ratios)
+        np.save(f'./runs/{self.save_id}/accept_rejects', self.accept_rejects)
+        np.save(f'./runs/{self.save_id}/samples', self.saved_subgraphs)
+
 
     def plot_distances(self) -> None:
         plt.plot(self.distances)
