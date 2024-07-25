@@ -1,13 +1,12 @@
 import random
-from tqdm import tqdm
 import numpy as np
 from rep_graph_sample import SubgraphHandler, RunHistory, ogb_dataset_to_nx_graph
 
 
 dataset_name = 'ogbn-arxiv'
 subgraph_size = 100
-num_iters = 5_000
-exponent = 80
+num_iters = 1_000
+exponent = 130
 
 
 # Load Dataset
