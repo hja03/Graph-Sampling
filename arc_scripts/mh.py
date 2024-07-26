@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from rep_graph_sample import SubgraphHandler, RunHistory, ogb_dataset_to_nx_graph
+from tqdm import tqdm
 
 
 dataset_name = 'ogbn-arxiv'
@@ -10,6 +11,7 @@ exponent = 130
 
 
 # Load Dataset
+print('Loading dataset.')
 graph = ogb_dataset_to_nx_graph(dataset_name)
 
 
@@ -29,7 +31,7 @@ logger = RunHistory(subgraph_handler=subgraph,
 # Main Loop
 prev_ks_dist = subgraph.ks_distance()
 
-for i in range(num_iters):
+for i in tqdm(range(num_iters)):
     # Randomly pick a node to remove and add to the subgraph
     remove_node = np.random.choice(subgraph.nodes)
     add_node = np.random.choice(subgraph.nodes_not_in_subgraph)
@@ -61,3 +63,4 @@ for i in range(num_iters):
     logger.log(ratio=ratio, accepted=accepted)
 
 logger.save_run()
+print('Saved and done!')
