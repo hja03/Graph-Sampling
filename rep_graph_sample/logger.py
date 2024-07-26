@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class RunHistory:
-    def __init__(self, subgraph_handler: SubgraphHandler, save_interval: int) -> None:
+    def __init__(self, subgraph_handler: SubgraphHandler, save_interval: int, p: int) -> None:
         self.distances = []
         self.ratios = []
         self.accept_rejects = []
@@ -18,7 +18,7 @@ class RunHistory:
         self.iteration = 0
         self.save_interval = save_interval
 
-        self.save_id = datetime.now().strftime("%d_%m__%H_%M_%S")
+        self.p = p
 
 
     def log(self, ratio: float, accepted: bool) -> None:
@@ -49,6 +49,8 @@ class RunHistory:
     
 
     def save_run(self) -> None:
+        self.save_id = f'p{self.p}_i{len(self.distances)}'
+
         Path(f"./runs/{self.save_id}").mkdir(parents=True, exist_ok=True)
         np.save(f'./runs/{self.save_id}/distances', self.distances)
         np.save(f'./runs/{self.save_id}/ratios', self.ratios)

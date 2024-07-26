@@ -23,7 +23,8 @@ subgraph = SubgraphHandler(
 )
 
 logger = RunHistory(subgraph_handler=subgraph,
-                    save_interval=100)
+                    save_interval=100,
+                    p=exponent)
 
 # Main Loop
 prev_ks_dist = subgraph.ks_distance()
