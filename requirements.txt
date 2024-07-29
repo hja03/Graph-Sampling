@@ -3,3 +3,5 @@ matplotlib
 ogb
 networkx
 tqdm
+torch
+torch_geometric

@@ -13,6 +13,7 @@ parser = ArgumentParser(
 parser.add_argument('--subgraph-size', type=int, default=100)
 parser.add_argument('--iters', type=int, default=1_000)
 parser.add_argument('--exponent', type=int, default=100)
+parser.add_argument('--max-step-size', type=int, default=1)
 parser.add_argument('--dataset', type=str, default='ogbn-arxiv')
 
 args = parser.parse_args()
@@ -34,14 +35,15 @@ subgraph = SubgraphHandler(
 
 logger = RunHistory(subgraph_handler=subgraph,
                     save_interval=100,
-                    p=args.exponent)
+                    p=args.exponent,
+                    max_step_size=args.max_step_size)
 
 # Main Loop
 prev_ks_dist = subgraph.ks_distance()
 
 for i in tqdm(range(args.iters)):
     # Randomly pick a node to remove and add to the subgraph
-    num_nodes_to_change = np.random.randint(1, 6)
+    num_nodes_to_change = np.random.randint(1, args.max_step_size + 1)
     remove_nodes = np.random.choice(subgraph.nodes, size=(num_nodes_to_change,), replace=False)
     add_nodes = np.random.choice(subgraph.nodes_not_in_subgraph, size=(num_nodes_to_change,), replace=False)
 

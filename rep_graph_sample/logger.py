@@ -8,7 +8,8 @@ from tqdm import tqdm
 
 
 class RunHistory:
-    def __init__(self, subgraph_handler: SubgraphHandler, save_interval: int, p: int) -> None:
+    def __init__(self, subgraph_handler: SubgraphHandler, save_interval: int, 
+                 p: int, max_step_size: int) -> None:
         self.distances = []
         self.ratios = []
         self.accept_rejects = []
@@ -21,6 +22,7 @@ class RunHistory:
         self.save_interval = save_interval
 
         self.p = p
+        self.max_step_size = max_step_size
 
 
     def log(self, ratio: float, accepted: bool) -> None:
@@ -51,7 +53,11 @@ class RunHistory:
     
 
     def save_run(self) -> None:
-        self.save_id = f'p{self.p}_i{len(self.distances)}'
+        if len(self.distances) >= 1000:
+            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}'
+        else:
+            self.save_id = f'p{self.p}_i{len(self.distances)}'
+
 
         Path(f"./runs/{self.save_id}").mkdir(parents=True, exist_ok=True)
         np.save(f'./runs/{self.save_id}/distances', self.distances)
@@ -68,7 +74,10 @@ class RunHistory:
 
 
     def export_samples(self) -> None:
-        self.save_id = f'p{self.p}_i{len(self.distances)}'
+        if len(self.distances) >= 1000:
+            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}'
+        else:
+            self.save_id = f'p{self.p}_i{len(self.distances)}'
 
         Path(f"./runs/{self.save_id}/samples").mkdir(parents=True, exist_ok=True)
         for i in range(len(self.saved_subgraphs)):

@@ -12,7 +12,7 @@ echo 'Activating venv'
 source ../venv/bin/activate
 
 echo 'Running Script'
-python mh.py --iters 200000 --exponent 500
+python mh.py --iters 100000 --exponent 150 --max-step-size 5
 deactivate
 
 echo ' --- Done --- '
