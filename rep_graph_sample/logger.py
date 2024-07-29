@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from .graph import SubgraphHandler
-from datetime import datetime
 from pathlib import Path
+from torch_geometric.utils.convert import from_networkx
+import torch
 
 
 class RunHistory:
@@ -57,6 +58,15 @@ class RunHistory:
         np.save(f'./runs/{self.save_id}/accept_rejects', self.accept_rejects)
         np.save(f'./runs/{self.save_id}/samples', self.saved_subgraphs)
 
+
+    def export_samples(self) -> None:
+        self.save_id = f'p{self.p}_i{len(self.distances)}'
+
+        Path(f"./runs/{self.save_id}/samples").mkdir(parents=True, exist_ok=True)
+        for i in range(len(self.saved_subgraphs)):
+            subgraph = self.subgraph_handler.full_graph.subgraph(self.saved_subgraphs[i])
+            subgraph = from_networkx(subgraph)
+            torch.save(subgraph, f'./runs/{self.save_id}/samples/sample_{i}')
 
     def plot_distances(self) -> None:
         plt.plot(self.distances)
