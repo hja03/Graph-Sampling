@@ -7,3 +7,4 @@
 /runs
 slurm*
 *.egg-info
+*.pyc
