@@ -4,6 +4,7 @@ from .graph import SubgraphHandler
 from pathlib import Path
 from torch_geometric.utils.convert import from_networkx
 import torch
+from tqdm import tqdm
 
 
 class RunHistory:
@@ -76,16 +77,17 @@ class RunHistory:
             torch.save(subgraph, f'./runs/{self.save_id}/samples/sample_{i}')
 
 
-    def plot_distances(self) -> None:
-        plt.plot(self.distances)
+    def plot_distances(self, avg_window_size:int = 1) -> None:
+        plt.plot(np.convolve(self.distances, np.ones(avg_window_size,) / avg_window_size, mode='valid'))
         plt.xlabel('Iteration')
         plt.ylabel('KS Distance')
 
 
-    def plot_degree_distributions(self) -> None:
+    def plot_degree_distributions(self, idx_range: tuple[int] = None) -> None:
         plt.ecdf(self.subgraph_handler.full_graph_degree_sequence, label='True')
 
-        degrees = [list(dict(self.subgraph_handler.full_graph.subgraph(nodes).degree()).values()) for nodes in self.saved_subgraphs]
+        idx_range = idx_range if idx_range is not None else (0, len(self.saved_subgraphs) - 1)
+        degrees = [list(dict(self.subgraph_handler.full_graph.subgraph(nodes).degree()).values()) for nodes in self.saved_subgraphs[idx_range[0]:idx_range[1]]]
         all_degrees = []
         for d in degrees:
             all_degrees += d
@@ -106,9 +108,11 @@ class RunHistory:
         def jaccard_sim_matrix(set_list: list[set]):
             matrix = np.zeros((len(set_list), len(set_list)))
 
-            for i, set_i in enumerate(set_list):
+            for i, set_i in tqdm(enumerate(set_list), total=len(set_list)):
                 for j, set_j in enumerate(set_list):
-                    if i != j:
+                    if len(set_i) == 0 or len(set_j) == 0:
+                        matrix[i, j] = 0
+                    elif i != j:
                         matrix[i,j] = len(set_i.intersection(set_j)) / len(set_i.union(set_j))
                     else:
                         matrix[i,j] = 1

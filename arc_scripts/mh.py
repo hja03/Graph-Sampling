@@ -41,11 +41,14 @@ prev_ks_dist = subgraph.ks_distance()
 
 for i in tqdm(range(args.iters)):
     # Randomly pick a node to remove and add to the subgraph
-    remove_node = np.random.choice(subgraph.nodes)
-    add_node = np.random.choice(subgraph.nodes_not_in_subgraph)
+    num_nodes_to_change = np.random.randint(1, 6)
+    remove_nodes = np.random.choice(subgraph.nodes, size=(num_nodes_to_change,), replace=False)
+    add_nodes = np.random.choice(subgraph.nodes_not_in_subgraph, size=(num_nodes_to_change,), replace=False)
 
-    subgraph.remove(remove_node)
-    subgraph.add(add_node)
+    for node in remove_nodes:
+        subgraph.remove(node)
+    for node in add_nodes:
+        subgraph.add(node)
 
     # Calculate the new Degree KS Distance
     new_ks_dist = subgraph.ks_distance()
@@ -64,8 +67,10 @@ for i in tqdm(range(args.iters)):
             accepted = True
         else:
             # Reject and revert back
-            subgraph.add(remove_node)
-            subgraph.remove(add_node)
+            for node in add_nodes:
+                subgraph.remove(node)
+            for node in remove_nodes:
+                subgraph.add(node)
             accepted = False
 
     logger.log(ratio=ratio, accepted=accepted)
