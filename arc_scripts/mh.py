@@ -2,21 +2,29 @@ import random
 import numpy as np
 from rep_graph_sample import SubgraphHandler, RunHistory, ogb_dataset_to_nx_graph
 from tqdm import tqdm
+from argparse import ArgumentParser
 
 
-dataset_name = 'ogbn-arxiv'
-subgraph_size = 100
-num_iters = 1_000
-exponent = 130
+# Parse Command Line Arguments
+parser = ArgumentParser(
+            prog='Metropolis-Hastings Graph Sampler'
+         )
+
+parser.add_argument('--subgraph-size', type=int, default=100)
+parser.add_argument('--iters', type=int, default=1_000)
+parser.add_argument('--exponent', type=int, default=100)
+parser.add_argument('--dataset', type=str, default='ogbn-arxiv')
+
+args = parser.parse_args()
 
 
 # Load Dataset
 print('Loading dataset.')
-graph = ogb_dataset_to_nx_graph(dataset_name)
+graph = ogb_dataset_to_nx_graph(args.dataset)
 
 
 # Get an initial subgraph node set
-subgraph_nodes = list(np.random.choice(graph.nodes(), size=(subgraph_size), replace=False))
+subgraph_nodes = list(np.random.choice(graph.nodes(), size=(args.subgraph_size), replace=False))
 #subgraph_nodes = list(np.load('0.151-60k.npy'))
 
 subgraph = SubgraphHandler(
@@ -26,12 +34,12 @@ subgraph = SubgraphHandler(
 
 logger = RunHistory(subgraph_handler=subgraph,
                     save_interval=100,
-                    p=exponent)
+                    p=args.exponent)
 
 # Main Loop
 prev_ks_dist = subgraph.ks_distance()
 
-for i in tqdm(range(num_iters)):
+for i in tqdm(range(args.iters)):
     # Randomly pick a node to remove and add to the subgraph
     remove_node = np.random.choice(subgraph.nodes)
     add_node = np.random.choice(subgraph.nodes_not_in_subgraph)
@@ -48,7 +56,7 @@ for i in tqdm(range(num_iters)):
         prev_ks_dist = new_ks_dist
         accepted = True
     else:
-        score = ratio ** exponent
+        score = ratio ** args.exponent
         prop = random.random()
         if score > prop:
             # Accept
