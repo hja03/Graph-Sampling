@@ -12,8 +12,11 @@
 
 - [ ] **Refactor SubgraphHandler**. Remove the full graph and subgraph into seperate classes.
 
-- [ ] **Rename / Refactor Logging**. Also add plotting functionality.
+- [x] **Rename / Refactor Logging**. Also add plotting functionality.
 
 - [ ] **Refactor to allow for Generic Metrics and Distances**.
 
 - [ ] **Implement 2-Hop Metric**.
+
+- [x] **Implement Flexible Proposal Dist**.
+

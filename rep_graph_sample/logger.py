@@ -92,10 +92,11 @@ class RunHistory:
         plt.ylabel('KS Distance')
 
 
-    def plot_degree_distributions(self, idx_range: tuple[int] = None) -> None:
+    def plot_degree_distributions(self, percentage_range: tuple[int] = None) -> None:
         plt.ecdf(self.subgraph_handler.full_graph_degree_sequence, label='True')
 
-        idx_range = idx_range if idx_range is not None else (0, len(self.saved_subgraphs) - 1)
+        percentage_range = percentage_range if percentage_range is not None else (0, 100)
+        idx_range = (int(percentage_range[0] * len(self.saved_subgraphs) * 0.01), int(percentage_range[1] * len(self.saved_subgraphs) * 0.01) - 1)
         degrees = [list(dict(self.subgraph_handler.full_graph.subgraph(nodes).degree()).values()) for nodes in self.saved_subgraphs[idx_range[0]:idx_range[1]]]
         all_degrees = []
         for d in degrees:
@@ -110,9 +111,9 @@ class RunHistory:
         plt.ylabel('P(d < D)')
 
 
-    def plot_sample_similarity(self) -> None:
-        node_sets = [set(nodes) for nodes in self.saved_subgraphs]
-        edge_sets = [set(self.subgraph_handler.full_graph.subgraph(nodes).edges()) for nodes in self.saved_subgraphs]
+    def plot_sample_similarity(self, subsample_factor: int = 1) -> None:
+        node_sets = [set(nodes) for nodes in self.saved_subgraphs[::subsample_factor]]
+        edge_sets = [set(self.subgraph_handler.full_graph.subgraph(nodes).edges()) for nodes in self.saved_subgraphs[::subsample_factor]]
 
         def jaccard_sim_matrix(set_list: list[set]):
             matrix = np.zeros((len(set_list), len(set_list)))
