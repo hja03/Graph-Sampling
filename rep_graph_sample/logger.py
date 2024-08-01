@@ -54,9 +54,9 @@ class RunHistory:
 
     def save_run(self) -> None:
         if len(self.distances) >= 1000:
-            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}'
+            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
         else:
-            self.save_id = f'p{self.p}_i{len(self.distances)}'
+            self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
 
 
         Path(f"./runs/{self.save_id}").mkdir(parents=True, exist_ok=True)
@@ -75,9 +75,9 @@ class RunHistory:
 
     def export_samples(self) -> None:
         if len(self.distances) >= 1000:
-            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}'
+            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
         else:
-            self.save_id = f'p{self.p}_i{len(self.distances)}'
+            self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
 
         Path(f"./runs/{self.save_id}/samples").mkdir(parents=True, exist_ok=True)
         for i in range(len(self.saved_subgraphs)):
@@ -97,7 +97,9 @@ class RunHistory:
 
         percentage_range = percentage_range if percentage_range is not None else (0, 100)
         idx_range = (int(percentage_range[0] * len(self.saved_subgraphs) * 0.01), int(percentage_range[1] * len(self.saved_subgraphs) * 0.01) - 1)
-        degrees = [list(dict(self.subgraph_handler.full_graph.subgraph(nodes).degree()).values()) for nodes in self.saved_subgraphs[idx_range[0]:idx_range[1]]]
+        samples = self.saved_subgraphs[idx_range[0]:idx_range[1]]
+
+        degrees = [list(dict(self.subgraph_handler.full_graph.subgraph(nodes).degree()).values()) for nodes in samples]
         all_degrees = []
         for d in degrees:
             all_degrees += d
@@ -111,9 +113,13 @@ class RunHistory:
         plt.ylabel('P(d < D)')
 
 
-    def plot_sample_similarity(self, subsample_factor: int = 1) -> None:
-        node_sets = [set(nodes) for nodes in self.saved_subgraphs[::subsample_factor]]
-        edge_sets = [set(self.subgraph_handler.full_graph.subgraph(nodes).edges()) for nodes in self.saved_subgraphs[::subsample_factor]]
+    def plot_sample_similarity(self, percentage_range: tuple[int] = None, subsample_factor: int = 1) -> None:
+        percentage_range = percentage_range if percentage_range is not None else (0, 100)
+        idx_range = (int(percentage_range[0] * len(self.saved_subgraphs) * 0.01), int(percentage_range[1] * len(self.saved_subgraphs) * 0.01) - 1)
+        samples = self.saved_subgraphs[idx_range[0]:idx_range[1]:subsample_factor]
+
+        node_sets = [set(nodes) for nodes in samples]
+        edge_sets = [set(self.subgraph_handler.full_graph.subgraph(nodes).edges()) for nodes in samples]
 
         def jaccard_sim_matrix(set_list: list[set]):
             matrix = np.zeros((len(set_list), len(set_list)))

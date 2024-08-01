@@ -15,6 +15,7 @@ parser.add_argument('--iters', type=int, default=1_000)
 parser.add_argument('--exponent', type=int, default=100)
 parser.add_argument('--max-step-size', type=int, default=1)
 parser.add_argument('--dataset', type=str, default='ogbn-arxiv')
+parser.add_argument('--save-interval', type=int, default=100)
 
 args = parser.parse_args()
 
@@ -34,7 +35,7 @@ subgraph = SubgraphHandler(
 )
 
 logger = RunHistory(subgraph_handler=subgraph,
-                    save_interval=100,
+                    save_interval=args.save_interval,
                     p=args.exponent,
                     max_step_size=args.max_step_size)
 

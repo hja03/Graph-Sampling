@@ -90,6 +90,7 @@ class SubgraphHandler:
         self.full_graph = full_graph
 
         self.subgraph_nodes = list(initial_node_set)
+        self.subgraph_size = len(initial_node_set)
 
         # Determine which nodes are not in the subgraph
         self.not_subgraph_nodes = [node for node in full_graph.nodes() if node not in initial_node_set]
