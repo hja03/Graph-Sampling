@@ -40,7 +40,8 @@ subgraph = SubgraphHandler(
 logger = RunHistory(subgraph_handler=subgraph,
                     save_interval=args.save_interval,
                     p=args.exponent,
-                    max_step_size=args.max_step_size)
+                    max_step_size=args.max_step_size,
+                    save_name=f'{args.dataset}-{args.subgraph_size}-{random.randint(1, 1000000)}')
 
 # Main Loop
 prev_ks_dist = subgraph.ks_distance()
