@@ -1,6 +1,6 @@
 import random
 import numpy as np
-from rep_graph_sample import SubgraphHandler, RunHistory, ogb_dataset_to_nx_graph
+from rep_graph_sample import SubgraphHandler, RunHistory, ogb_dataset_to_nx_graph, load_from_pickle
 from tqdm import tqdm
 from argparse import ArgumentParser
 
@@ -21,8 +21,11 @@ args = parser.parse_args()
 
 
 # Load Dataset
-print('Loading dataset.')
-graph = ogb_dataset_to_nx_graph(args.dataset)
+print(f'Loading dataset: {args.dataset}')
+if args.dataset == 'ogbn-arxiv':
+    graph = ogb_dataset_to_nx_graph(args.dataset)
+elif args.dataset == 'tiger':
+    graph = load_from_pickle('./dataset/Large_Tiger_Alaska_90k.pkl')
 
 
 # Get an initial subgraph node set

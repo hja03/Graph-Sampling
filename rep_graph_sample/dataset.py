@@ -1,6 +1,8 @@
 from ogb.nodeproppred import NodePropPredDataset
 from ogb.linkproppred import LinkPropPredDataset
 import networkx as nx
+import pickle
+from torch_geometric.utils.convert import to_networkx
 
 
 def ogb_dataset_to_nx_graph(dataset_name: str) -> nx.Graph:
@@ -29,3 +31,14 @@ def ogb_dataset_to_nx_graph(dataset_name: str) -> nx.Graph:
     assert(nx_graph.number_of_nodes() == graph['num_nodes'])
 
     return nx_graph
+
+
+def load_from_pickle(path: str, remove_data: bool = True):
+    data = pickle.load(open(path, 'rb'))[0]
+
+    if remove_data:
+        if data.x is not None: del(data.x)
+        if data.y is not None: del(data.y)
+
+    g = to_networkx(data, to_undirected=True, remove_self_loops=True)
+    return g

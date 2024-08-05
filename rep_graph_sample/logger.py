@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 class RunHistory:
     def __init__(self, subgraph_handler: SubgraphHandler, save_interval: int, 
-                 p: int, max_step_size: int) -> None:
+                 p: int, max_step_size: int, save_name: str = None) -> None:
         self.distances = []
         self.ratios = []
         self.accept_rejects = []
@@ -24,6 +24,7 @@ class RunHistory:
         self.p = p
         self.max_step_size = max_step_size
 
+        self.save_name = save_name
 
     def log(self, ratio: float, accepted: bool) -> None:
         self.iteration += 1
@@ -53,10 +54,13 @@ class RunHistory:
     
 
     def save_run(self) -> None:
-        if len(self.distances) >= 1000:
-            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+        if self.save_name is not None:
+            self.save_id = self.save_name
         else:
-            self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+            if len(self.distances) >= 1000:
+                self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+            else:
+                self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
 
 
         Path(f"./runs/{self.save_id}").mkdir(parents=True, exist_ok=True)
@@ -74,10 +78,13 @@ class RunHistory:
 
 
     def export_samples(self) -> None:
-        if len(self.distances) >= 1000:
-            self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+        if self.save_name is not None:
+            self.save_id = self.save_name
         else:
-            self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+            if len(self.distances) >= 1000:
+                self.save_id = f'p{self.p}_i{len(self.distances) // 1_000}k_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
+            else:
+                self.save_id = f'p{self.p}_i{len(self.distances)}_n{self.max_step_size}_s{self.subgraph_handler.subgraph_size}'
 
         Path(f"./runs/{self.save_id}/samples").mkdir(parents=True, exist_ok=True)
         for i in range(len(self.saved_subgraphs)):
